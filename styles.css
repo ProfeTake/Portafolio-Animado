@@ -69,7 +69,18 @@ a:hover { color: var(--mag); }
 }
 @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @keyframes marqueeRev { from { transform: translateX(-50%); } to { transform: translateX(0); } }
-@keyframes halftone { from { background-position: 0 0, 0 0; } to { background-position: 60px 60px, -40px 40px; } }
+/* Un bucle de patrón solo es invisible si el desplazamiento es múltiplo
+   exacto de la tesela; si no, al reiniciar el ciclo el dibujo pega un salto.
+   Por eso hay dos animaciones y no una compartida: el halftone del hero
+   repite cada 22px y 34px, y el del pie cada 16px. */
+@keyframes halftoneHero {
+  from { background-position: 0 0, 0 0; }
+  to { background-position: 66px 66px, -68px 68px; }   /* 3x22 y 2x34 */
+}
+@keyframes halftoneFooter {
+  from { background-position: 0 0; }
+  to { background-position: 64px 64px; }               /* 4x16 */
+}
 @keyframes flicker {
   0%, 100% { opacity: 1; }
   47% { opacity: 1; }
@@ -78,7 +89,10 @@ a:hover { color: var(--mag); }
   72% { opacity: .4; }
   73% { opacity: 1; }
 }
-@keyframes scan { from { transform: translateY(-100%); } to { transform: translateY(1200%); } }
+/* En un transform el % mide la propia caja, no la ventana: el 1200% de una
+   línea de 120px son 1440px fijos, y en un monitor más alto la scanline se
+   quedaba parada a media pantalla. Con vh cruza entera en cualquier alto. */
+@keyframes scan { from { transform: translateY(-120px); } to { transform: translateY(100vh); } }
 @keyframes tada {
   0% { transform: scale(1) rotate(0); }
   10%, 20% { transform: scale(.9) rotate(-3deg); }
@@ -124,7 +138,11 @@ a:hover { color: var(--mag); }
   86% { transform: translateY(-9px); }
   90%, 100% { transform: translateY(0) scale(1, 1); }
 }
-@keyframes stripeRun { from { background-position: 0 0; } to { background-position: 160px 160px; } }
+/* Las rayas van a 45°, así que su eje de repetición es la diagonal
+   contraria: moverlas en (160,160) era deslizarlas a lo largo de sí mismas
+   y no se veía nada. En (d,-d) sí cruzan las bandas, y con d = 4x16/raiz(2)
+   el ciclo cierra justo en la cuarta banda. */
+@keyframes stripeRun { from { background-position: 0 0; } to { background-position: 45.25px -45.25px; } }
 @keyframes glowDrift {
   0% { transform: translate(0, 0) scale(1); }
   33% { transform: translate(6vw, -4vh) scale(1.15); }
@@ -479,7 +497,7 @@ a:hover { color: var(--mag); }
     radial-gradient(circle at 1px 1px, var(--mag) 2px, transparent 0),
     radial-gradient(circle at 1px 1px, var(--cya) 2px, transparent 0);
   background-size: 22px 22px, 34px 34px;
-  animation: halftone 3.6s linear infinite;
+  animation: halftoneHero 3.6s linear infinite;
   mask-image: radial-gradient(ellipse at 50% 40%, #000 10%, transparent 70%);
   -webkit-mask-image: radial-gradient(ellipse at 50% 40%, #000 10%, transparent 70%);
 }
@@ -1124,7 +1142,7 @@ section[id] { scroll-margin-top: 90px; }
   opacity: .22;
   background-image: radial-gradient(circle at 1px 1px, #0a0a0c 2px, transparent 0);
   background-size: 16px 16px;
-  animation: halftone 8s linear infinite;
+  animation: halftoneFooter 8s linear infinite;
 }
 .footer__inner { display: flex; flex-direction: column; gap: 30px; }
 
@@ -1175,7 +1193,26 @@ section[id] { scroll-margin-top: 90px; }
 
 /* --------------------------------------------------------- reduced fx --- */
 
+/* Quien pide menos movimiento recibe el sitio quieto: el contenido está en
+   el HTML, así que no se pierde nada al no animarlo.
+
+   OJO con animation-iteration-count: sin él, acortar la duración NO apaga
+   una animación infinita — la acelera. Las 15 animaciones `infinite` de
+   esta hoja (halftone, rayas, scanline, glows, marquees, glitch…) pasaban
+   a dar mil vueltas por segundo y el fondo quedaba estroboscópico justo en
+   los equipos que habían pedido calma. Una sola repetición de 0,01 ms deja
+   cada animación en su fotograma final, que en todas estas es la posición
+   de reposo. */
 @media (prefers-reduced-motion: reduce) {
-  * { animation-duration: .001s !important; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    /* También los retardos: sin esto, la cortina del menú se queda 450 ms
+       invisible pero encima de la página, tragándose el primer toque. */
+    transition-delay: 0s !important;
+  }
   html { scroll-behavior: auto; }
 }
