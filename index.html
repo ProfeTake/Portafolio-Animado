@@ -33,12 +33,17 @@
       <span class="brand__mark" aria-hidden="true"></span>
       <span class="brand__name">F.FIGUEROA</span>
     </div>
-    <nav class="nav" aria-label="Navegación principal">
-      <a class="nav__link" href="#manifiesto">MANIFIESTO</a>
-      <a class="nav__link" href="#hago">LO QUE HAGO</a>
-      <a class="nav__link" href="#trabajo">TRABAJO</a>
-      <a class="nav__link" href="#ruta">RUTA</a>
-      <a class="nav__link nav__link--cta" href="mailto:fco.figueroa97@gmail.com">CONTACTO</a>
+    <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="nav-principal" aria-label="Abrir menú">
+      <span class="nav__bars" aria-hidden="true"></span>
+      <span class="nav__toggle-label" aria-hidden="true"></span>
+    </button>
+    <nav class="nav" id="nav-principal" aria-label="Navegación principal">
+      <a class="nav__link" href="#manifiesto"><span class="nav__num" aria-hidden="true">01</span>MANIFIESTO</a>
+      <a class="nav__link" href="#hago"><span class="nav__num" aria-hidden="true">02</span>LO QUE HAGO</a>
+      <a class="nav__link" href="#trabajo"><span class="nav__num" aria-hidden="true">03</span>TRABAJO</a>
+      <a class="nav__link" href="#ruta"><span class="nav__num" aria-hidden="true">04</span>RUTA</a>
+      <a class="nav__link nav__link--cta" href="mailto:fco.figueroa97@gmail.com"><span class="nav__num" aria-hidden="true">05</span>CONTACTO</a>
+      <p class="nav__foot">RANCAGUA · CHILE<br><span>DISPONIBILIDAD INMEDIATA</span></p>
     </nav>
   </header>
 
@@ -66,7 +71,7 @@
         </span>
         <span class="hero__row">
           <span class="hero__figueroa" data-fig="1">FIGUEROA</span>
-          <span class="hero__tag">JR. NO ES UN LÍMITE</span>
+          <span class="hero__tag">EL CRITERIO NO SE PROMPTEA</span>
         </span>
       </h1>
 
@@ -207,26 +212,35 @@
               <span class="tag" data-chip="1">NODE.JS</span>
               <span class="tag" data-chip="1">MYSQL</span>
             </div>
+            <div class="proj__foot">
+              <a class="proj__link" href="https://pos-system-production-e288.up.railway.app/" target="_blank" rel="noopener noreferrer">VER DEMO <span aria-hidden="true">↗</span></a>
+              <p class="proj__demo"><b>DEMO</b> cuenta <code>demo</code> · contraseña <code>demo</code></p>
+            </div>
           </div>
         </article>
 
         <article class="proj" data-reveal data-swinggroup="1" style="--accent:#16e0ff">
           <div class="proj__thumb">
             <div class="proj__dots" aria-hidden="true"></div>
-            <span class="proj__slot">[ dashboard de Atlas ]</span>
-            <span class="proj__type" data-swing="1">PRODUCTO</span>
+            <span class="proj__slot">[ cuadre de caja ]</span>
+            <span class="proj__type" data-swing="1">ERP / POS</span>
           </div>
           <div class="proj__body">
             <div class="proj__titlerow">
-              <h3 class="proj__name">PLATAFORMA ATLAS</h3>
-              <span class="proj__year">2025</span>
+              <h3 class="proj__name">NUTS 4 YOU</h3>
+              <span class="proj__year">2026</span>
             </div>
-            <p class="proj__desc">Gestión de tareas para equipos, con roles de usuario, permisos y dashboard de seguimiento.</p>
-            <div class="proj__role"><strong>MI ROL:</strong> diseño de base de datos y del flujo completo de la aplicación; frontend y backend implementados con apoyo de IA.</div>
+            <p class="proj__desc">ERP y punto de venta para una cadena de confitería con cinco sucursales y bodega central: turnos de caja, cuadre y depósitos, inventario por local y liquidación de sueldos.</p>
+            <div class="proj__role"><strong>MI ROL:</strong> levanté los requisitos desde las planillas reales del cliente, modelé la base de datos en MySQL y definí las reglas de cuadre y nómina; frontend React y backend Express implementados con apoyo de IA.</div>
             <div class="proj__tags">
               <span class="tag" data-chip="1">REACT</span>
-              <span class="tag" data-chip="1">ROLES</span>
-              <span class="tag" data-chip="1">DASHBOARD</span>
+              <span class="tag" data-chip="1">TYPESCRIPT</span>
+              <span class="tag" data-chip="1">PRISMA</span>
+              <span class="tag" data-chip="1">MYSQL</span>
+            </div>
+            <div class="proj__foot">
+              <a class="proj__link" href="https://nuts4you-production.up.railway.app/" target="_blank" rel="noopener noreferrer">VER DEMO <span aria-hidden="true">↗</span></a>
+              <p class="proj__demo"><b>DEMO</b> RUT <code>00000000-0</code> · contraseña <code>demo2026</code></p>
             </div>
           </div>
         </article>
@@ -242,11 +256,12 @@
               <h3 class="proj__name">ESTE PORTAFOLIO</h3>
               <span class="proj__year">2026</span>
             </div>
-            <p class="proj__desc">El sitio que estás viendo: una sola página con parallax, revelados por scroll y efectos de texto escritos a mano. Sin framework, sin dependencias y sin paso de build.</p>
-            <div class="proj__role"><strong>MI ROL:</strong> dirección de diseño, estructura y todo el contenido; maquetación y efectos implementados con apoyo de IA, sin framework ni librerías de animación.</div>
+            <p class="proj__desc">El sitio que estás viendo: una sola página en HTML5, CSS3 y JavaScript puro, con parallax, revelados por scroll y efectos de texto escritos a mano. Sin React ni Next.js, sin dependencias y sin paso de build: tres archivos y listo.</p>
+            <div class="proj__role"><strong>MI ROL:</strong> dirección de diseño, estructura y todo el contenido; maquetación y efectos implementados con apoyo de IA, en HTML, CSS y JavaScript a mano, sin framework ni librerías de animación.</div>
             <div class="proj__tags">
+              <span class="tag" data-chip="1">HTML5</span>
+              <span class="tag" data-chip="1">CSS3</span>
               <span class="tag" data-chip="1">VANILLA JS</span>
-              <span class="tag" data-chip="1">ANIMACIÓN CSS</span>
               <span class="tag" data-chip="1">SIN BUILD</span>
             </div>
           </div>
@@ -269,6 +284,9 @@
               <span class="tag" data-chip="1">HTML5</span>
               <span class="tag" data-chip="1">CSS3</span>
               <span class="tag" data-chip="1">JAVASCRIPT</span>
+            </div>
+            <div class="proj__foot">
+              <a class="proj__link" href="https://clinicaledent.cl" target="_blank" rel="noopener noreferrer">VER SITIO <span aria-hidden="true">↗</span></a>
             </div>
           </div>
         </article>

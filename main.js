@@ -72,6 +72,10 @@
     APODO: 'TAKE',
   };
 
+  // El mismo corte que la media query del menú en styles.css: si cambia
+  // uno, cambia el otro.
+  const MENU = { ANCHO_MAXIMO: 760 };
+
   const GLIFO = {
     SIMBOLOS: ['\u2620', '\\m/', '</>', '{ ; }', '&&', 'SQL', '#!', '\u269b'],
     VARIABLES_COLOR: ['--mag', '--cya', '--yel'],  // se leen de styles.css
@@ -441,6 +445,51 @@
     }
   }
 
+  /* --- 3.7 Menú móvil ---------------------------------------------------
+     Bajo 760px el nav es una cortina a pantalla completa. Fiel a la idea
+     del archivo, aquí solo se enciende y se apaga la clase .is-open: la
+     cortina, la cascada de los enlaces y la X del botón son CSS.         */
+
+  function activarMenuMovil() {
+    const cabecera = uno('.site-header');
+    const boton = uno('.nav__toggle');
+    const menu = uno('.nav');
+    if (!cabecera || !boton || !menu) return;
+
+    const esMovil = window.matchMedia(`(max-width: ${MENU.ANCHO_MAXIMO}px)`);
+
+    /** Único sitio donde cambia el estado del menú. */
+    const mostrar = (abierto) => {
+      cabecera.classList.toggle('is-open', abierto);
+      // El bloqueo del scroll vive en <html>, junto a .js-on.
+      document.documentElement.classList.toggle('menu-abierto', abierto);
+      boton.setAttribute('aria-expanded', String(abierto));
+      boton.setAttribute('aria-label', abierto ? 'Cerrar menú' : 'Abrir menú');
+    };
+
+    boton.addEventListener('click', () => {
+      mostrar(!cabecera.classList.contains('is-open'));
+    });
+
+    // Tocar un enlace ya lleva a su sección: dejar la cortina encima sobra.
+    menu.addEventListener('click', (evento) => {
+      if (evento.target.closest('.nav__link')) mostrar(false);
+    });
+
+    document.addEventListener('keydown', (evento) => {
+      if (evento.key !== 'Escape') return;
+      if (!cabecera.classList.contains('is-open')) return;
+      mostrar(false);
+      boton.focus();
+    });
+
+    // Si la ventana crece hasta escritorio la cortina deja de existir; hay
+    // que limpiar el estado o el scroll se quedaría bloqueado sin menú.
+    esMovil.addEventListener('change', (evento) => {
+      if (!evento.matches) mostrar(false);
+    });
+  }
+
   /* =========================================================================
      4. ARRANQUE
      El único punto donde los efectos se enganchan al documento. Si algo no
@@ -459,5 +508,6 @@
 
   activarParallax();
   activarMorphDelNombre();
+  activarMenuMovil();
   rotarGlifo();
 })();

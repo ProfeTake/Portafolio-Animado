@@ -287,6 +287,177 @@ a:hover { color: var(--mag); }
   border-color: var(--cya);
 }
 
+/* Piezas que solo existen en el menú móvil: en escritorio no ocupan sitio. */
+.nav__toggle,
+.nav__num,
+.nav__foot { display: none; }
+
+/* ------------------------------------------------------- menú móvil ---
+   Bajo 760px los cinco botones se envolvían en dos filas y se comían un
+   tercio de la pantalla del teléfono. Aquí el nav deja de ser una fila:
+   se convierte en una cortina a pantalla completa que baja desde la barra
+   y los enlaces pasan a ser titulares numerados, como las secciones.
+
+   Todo cuelga de .js-on a propósito: sin JS el botón no abriría nada, así
+   que sin JS se conserva la fila de botones original — fea, pero
+   navegable. Y el JS solo enciende .is-open; el movimiento es de aquí. */
+@media (max-width: 760px) {
+
+  .js-on .site-header {
+    --alto-barra: 58px;
+    height: var(--alto-barra);
+    padding: 0 16px;
+  }
+
+  /* --- Botón hamburguesa --- */
+
+  .js-on .nav__toggle {
+    position: relative;
+    z-index: 2;               /* por encima de la cortina, para poder cerrarla */
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 10px;
+    letter-spacing: .16em;
+    color: var(--bone);
+    background: var(--panel-2);
+    border: 2px solid var(--mag);
+    padding: 9px 12px;
+    cursor: pointer;
+  }
+  /* \00DA = Ú escapada: el texto va en CSS y no depende de cómo se
+     interprete la codificación de este archivo. */
+  .js-on .nav__toggle-label::before { content: "MEN\00DA"; }
+  .js-on .site-header.is-open .nav__toggle-label::before { content: "CERRAR"; }
+
+  .js-on .nav__bars,
+  .js-on .nav__bars::before,
+  .js-on .nav__bars::after {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: var(--bone);
+    transition: transform .3s cubic-bezier(.2, .9, .2, 1), background .2s ease;
+  }
+  .js-on .nav__bars { position: relative; }
+  .js-on .nav__bars::before,
+  .js-on .nav__bars::after { content: ''; position: absolute; left: 0; }
+  .js-on .nav__bars::before { top: -6px; }
+  .js-on .nav__bars::after { top: 6px; }
+
+  /* Abierto: la barra del medio se apaga y las otras dos cruzan la X. */
+  .js-on .site-header.is-open .nav__bars { background: transparent; }
+  .js-on .site-header.is-open .nav__bars::before { transform: translateY(6px) rotate(45deg); }
+  .js-on .site-header.is-open .nav__bars::after { transform: translateY(-6px) rotate(-45deg); }
+
+  /* --- La cortina --- */
+
+  /* position:absolute y no fixed: la barra lleva backdrop-filter, que crea
+     un bloque contenedor y dejaría el fixed anclado a la barra, no a la
+     pantalla. Con absolute + top:100% la cortina cuelga justo debajo. */
+  .js-on .nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    height: calc(100vh - var(--alto-barra));
+    height: calc(100dvh - var(--alto-barra));
+    flex-direction: column;
+    /* nowrap: en columna, el wrap heredado partiría la lista en dos
+       columnas si un teléfono bajo no le diera la altura. */
+    flex-wrap: nowrap;
+    justify-content: center;
+    /* safe center: si el contenido no cabe, se alinea arriba en vez de
+       desbordar por los dos lados y dejar los primeros enlaces fuera. */
+    justify-content: safe center;
+    gap: 0;
+    padding: 8px 20px 28px;
+    overflow-y: auto;
+    background: var(--ink);
+    background-image: repeating-linear-gradient(135deg, transparent 0 22px, rgba(255, 45, 111, .05) 22px 24px);
+    border-bottom: 2px solid var(--mag);
+    /* Se abre recortando, no desplazando: nada se mueve de sitio. */
+    clip-path: inset(0 0 100% 0);
+    opacity: 0;
+    visibility: hidden;
+    transition: clip-path .45s cubic-bezier(.2, .9, .2, 1), opacity .25s ease, visibility 0s linear .45s;
+  }
+  .js-on .site-header.is-open .nav {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+    visibility: visible;
+    transition: clip-path .45s cubic-bezier(.2, .9, .2, 1), opacity .2s ease, visibility 0s;
+  }
+
+  /* Con la cortina abierta la página de atrás no debe moverse. */
+  .js-on.menu-abierto,
+  .js-on.menu-abierto body { overflow: hidden; }
+
+  /* --- Enlaces como titulares --- */
+
+  .js-on .nav__link {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(30px, 8.5vw, 46px);
+    font-weight: 400;
+    letter-spacing: .01em;
+    line-height: 1;
+    color: var(--bone);
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--line-soft);
+    padding: 16px 2px;
+    opacity: 0;
+    transform: translateX(-18px);
+    transition: opacity .3s ease, transform .4s cubic-bezier(.2, .9, .2, 1), color .2s ease;
+  }
+  .js-on .nav__link:active { color: var(--cya); }
+
+  /* Entran en cascada, 60 ms uno tras otro, ya con la cortina abajo. */
+  .js-on .site-header.is-open .nav__link { opacity: 1; transform: none; }
+  .js-on .site-header.is-open .nav__link:nth-child(1) { transition-delay: .12s; }
+  .js-on .site-header.is-open .nav__link:nth-child(2) { transition-delay: .18s; }
+  .js-on .site-header.is-open .nav__link:nth-child(3) { transition-delay: .24s; }
+  .js-on .site-header.is-open .nav__link:nth-child(4) { transition-delay: .30s; }
+  .js-on .site-header.is-open .nav__link:nth-child(5) { transition-delay: .36s; }
+
+  .js-on .nav__num {
+    display: block;
+    font-family: 'Space Mono', ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: .12em;
+    color: var(--mag);
+  }
+
+  .js-on .nav__link--cta {
+    justify-content: space-between;
+    margin-top: 26px;
+    color: var(--ink);
+    background: var(--cya);
+    border: 2px solid var(--cya);
+    padding: 18px 16px;
+    box-shadow: 7px 7px 0 var(--mag);
+  }
+  .js-on .nav__link--cta .nav__num { color: var(--ink); }
+
+  .js-on .nav__foot {
+    display: block;
+    margin: 26px 0 0;
+    font-size: 10.5px;
+    letter-spacing: .16em;
+    line-height: 1.9;
+    color: var(--dimmest);
+    opacity: 0;
+    transition: opacity .3s ease .42s;
+  }
+  .js-on .nav__foot span { color: var(--cya); }
+  .js-on .site-header.is-open .nav__foot { opacity: 1; }
+}
+
 /* -------------------------------------------------------------- hero --- */
 
 .hero {
@@ -826,6 +997,60 @@ section[id] { scroll-margin-top: 90px; }
   border: 1px solid #24404a;
   background: #0d1a1e;
   padding: 4px 8px;
+}
+
+/* Pie de tarjeta: enlace al proyecto vivo y, si es una demo con login,
+   las credenciales a la vista. El botón toma el --accent de la tarjeta,
+   así que cada proyecto lo hereda sin escribir un color aquí. */
+.proj__foot { display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
+
+.proj__link {
+  align-self: flex-start;
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 12px;
+  letter-spacing: .12em;
+  color: var(--ink);
+  background: var(--accent);
+  border: 2px solid var(--accent);
+  padding: 9px 14px;
+  transition: background .2s ease, color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.proj__link:hover,
+.proj__link:focus-visible {
+  color: var(--accent);
+  background: transparent;
+  box-shadow: 4px 4px 0 var(--accent);
+  transform: translate(-2px, -2px);
+}
+
+.proj__demo {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--dimmer);
+}
+.proj__demo b {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 9.5px;
+  font-weight: 400;
+  letter-spacing: .14em;
+  color: var(--ink);
+  background: var(--yel);
+  padding: 3px 6px;
+}
+/* user-select:all — un clic selecciona la credencial completa, para que
+   quien mire la demo pueda copiarla sin arrastrar el cursor. */
+.proj__demo code {
+  font-family: 'Space Mono', ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--bone);
+  background: #1a1a20;
+  border: 1px solid var(--line);
+  padding: 2px 6px;
+  user-select: all;
 }
 
 /* --------------------------------------------------------------- ruta --- */
