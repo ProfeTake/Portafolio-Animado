@@ -56,9 +56,17 @@
     RUIDO_FOTOGRAMA: 70,     // cada cuánto se recalculan los símbolos
     RUIDO_DENSIDAD: 0.45,    // proporción de letras sustituidas por ruido
     PAUSA_TRAS_RUIDO: 3000,  // texto legible en pantalla antes de tipear
-    TIPEO_TOTAL: 4000,       // tiempo total de escritura de la frase larga
+    // Velocidad por letra, no tiempo total: las frases tienen largos muy
+    // distintos y un total fijo haría que las cortas se escribieran a
+    // cámara lenta. Tecleando siempre al mismo ritmo, se ve humano.
+    TIPEO_POR_LETRA: 105,
     PAUSA_TRAS_TIPEO: 1400,  // frase completa en pantalla antes de borrarla
+    BORRADO_POR_LETRA: 46,   // borrar va más rápido que escribir, como al teclear
     PAUSA_ANTES_DE_REPETIR: 400,
+    // La frase de data-typer-beg no entra al sorteo hasta que la página
+    // lleva 15 minutos abierta. Quien sigue ahí después de ese rato ya
+    // decidió que le interesa; antes, rogar trabajo se lee como desesperación.
+    ESPERA_SUPLICA: 15 * 60 * 1000,
     TAMANO_MINIMO: 18,       // px: suelo del autoajuste, para no desaparecer
     MARGEN_SEGURIDAD: 0.97,  // 3 % de aire al calcular el tamaño que cabe
   };
@@ -194,15 +202,51 @@
   }
 
   /* --- 3.3 Titular "HABLEMOS." del footer -------------------------------
-     Ciclo infinito de cuatro tiempos:
+     Ciclo infinito de seis tiempos:
        1. el texto base tiembla convertido en símbolos      (3 s)
        2. se estabiliza y se queda legible                  (3 s)
-       3. se escribe letra a letra la frase larga alterna   (4 s)
-       4. pausa breve y vuelta a empezar                  (0,4 s)         */
+       3. se borra letra a letra                          (0,4 s)
+       4. se escribe la siguiente frase de la rotación   (1,3-3 s)
+       5. la frase completa se queda en pantalla          (1,4 s)
+       6. se borra letra a letra y vuelta a empezar       (0,6-1,3 s)
+
+     Las frases salen de data-typer-frases (separadas por |) y rotan en
+     orden, no al azar: así nadie ve la misma dos veces seguidas. La de
+     data-typer-beg es aparte — solo se suma a la rotación cuando la página
+     lleva 15 minutos abierta.
+
+     Los dos borrados son lo que cierra el bucle. Sin ellos el titular
+     saltaba de la frase larga a "HABLEMOS." en un solo fotograma, y como
+     cada texto se dibuja a un tamaño de letra distinto —28 caracteres no
+     caben tan grandes como 9— el corte venía además con un salto de
+     tamaño. Ahora los dos cambios de tamaño ocurren con la línea vacía,
+     donde no se ven.                                                    */
 
   async function tipear(el) {
     const base = el.dataset.typer || 'HABLEMOS.';
-    const alterna = el.dataset.typerBeg || 'H\u00c1BLAME PORFA';
+    const frases = (el.dataset.typerFrases || '')
+      .split('|')
+      .map((f) => f.trim())
+      .filter(Boolean);
+    const suplica = (el.dataset.typerBeg || '').trim();
+
+    let turno = 0;
+
+    /**
+     * La siguiente frase de la rotaci\u00f3n.
+     *
+     * El pozo se arma en cada vuelta, no una sola vez, porque crece: a los
+     * 15 minutos entra la s\u00faplica y desde ah\u00ed rota como una m\u00e1s.
+     *
+     * performance.now() mide desde que carg\u00f3 la p\u00e1gina, as\u00ed que el reloj
+     * corre aunque el visitante nunca haya bajado hasta el footer.
+     */
+    function siguienteFrase() {
+      const pozo = frases.slice();
+      if (suplica && performance.now() >= TITULAR.ESPERA_SUPLICA) pozo.push(suplica);
+      if (!pozo.length) return suplica || base;
+      return pozo[turno++ % pozo.length];
+    }
 
     /**
      * Reduce el tamaño de letra para que `texto` quepa en una sola línea.
@@ -259,16 +303,24 @@
       el.textContent = base;
     }
 
-    /** Paso 3: escribe la frase alterna con un símbolo haciendo de cursor. */
-    async function escribir() {
-      ajustarTamano(alterna);
+    /** Pasos 3 y 6: borra letra a letra, con el mismo símbolo de cursor. */
+    async function borrar(texto) {
+      for (let i = texto.length - 1; i >= 0; i--) {
+        el.textContent = texto.slice(0, i) + (i ? caracterAlAzar() : '');
+        await esperar(TITULAR.BORRADO_POR_LETRA);
+      }
+    }
+
+    /** Paso 4: escribe la frase con un símbolo haciendo de cursor.
+     *  Entra con la línea ya vacía, así que el cambio de tamaño no se ve. */
+    async function escribir(frase) {
+      ajustarTamano(frase);
       el.textContent = '';
 
-      const porLetra = TITULAR.TIPEO_TOTAL / alterna.length;
-      for (let i = 1; i <= alterna.length; i++) {
-        const ultima = i === alterna.length;
-        el.textContent = alterna.slice(0, i) + (ultima ? '' : caracterAlAzar());
-        await esperar(ultima ? TITULAR.PAUSA_TRAS_TIPEO : porLetra);
+      for (let i = 1; i <= frase.length; i++) {
+        const ultima = i === frase.length;
+        el.textContent = frase.slice(0, i) + (ultima ? '' : caracterAlAzar());
+        await esperar(TITULAR.TIPEO_POR_LETRA);
       }
     }
 
@@ -276,7 +328,14 @@
     for (;;) {
       await romper();
       await esperar(TITULAR.PAUSA_TRAS_RUIDO);
-      await escribir();
+      await borrar(base);
+
+      // La misma frase para escribir y para borrar: si se pidiera dos veces
+      // a siguienteFrase(), se borraría una distinta de la que se escribió.
+      const frase = siguienteFrase();
+      await escribir(frase);
+      await esperar(TITULAR.PAUSA_TRAS_TIPEO);
+      await borrar(frase);
       await esperar(TITULAR.PAUSA_ANTES_DE_REPETIR);
     }
   }

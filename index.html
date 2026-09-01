@@ -416,16 +416,28 @@
     <div class="footer__halftone" aria-hidden="true"></div>
     <div class="wrap footer__inner">
 
-      <h2 class="footer__shout" data-typer="HABLEMOS." data-typer-beg="HÁBLAME PORFAAAAAAAAaaAAAaaa">HABLEMOS.</h2>
+      <!-- Las frases rotan en orden. La de data-typer-beg no aparece hasta
+           que la página lleva 15 minutos abierta: es el premio a quedarse,
+           no la primera impresión. Para editar la rotación basta con tocar
+           data-typer-frases; el separador es la barra vertical. -->
+      <h2 class="footer__shout"
+          data-typer="HABLEMOS."
+          data-typer-frases="CONVERSEMOS.|¿QUÉ ESTÁS CONSTRUYENDO?|TRÁEME UN PROBLEMA DIFÍCIL.|CUÉNTAME QUÉ NECESITAS.|TOMEMOS UN CAFÉ.|PRUEBA MI CRITERIO."
+          data-typer-beg="HÁBLAME PORFAAAAAAAAaaAAAaaa">HABLEMOS.</h2>
 
       <div class="contact">
         <a class="contact__card contact__card--mail" href="mailto:fco.figueroa97@gmail.com">
           <span class="contact__label">EMAIL</span>
           <span class="contact__value contact__value--break">fco.figueroa97@gmail.com</span>
         </a>
-        <a class="contact__card contact__card--tel" href="tel:+56984598688">
-          <span class="contact__label">TELÉFONO</span>
-          <span class="contact__value">mejor hablame al correo </span>
+        <!-- wa.me quiere el número sin +, sin espacios y con código de país.
+             El texto va precargado: quien escribe no tiene que inventar
+             cómo empezar la conversación. -->
+        <a class="contact__card contact__card--tel"
+           href="https://wa.me/56984598688?text=Hola%20Francisco%2C%20vi%20tu%20portafolio%20y%20quiero%20conversar%20contigo."
+           target="_blank" rel="noopener noreferrer">
+          <span class="contact__label">WHATSAPP</span>
+          <span class="contact__value">+56 9 8459 8688</span>
         </a>
         <div class="contact__card">
           <span class="contact__label">UBICACIÓN</span>
